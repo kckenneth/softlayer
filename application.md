@@ -16,6 +16,9 @@ __Synopsis__
 __Dockerfile__  
 
 ```
+$ cd ~
+$ mkdir softlayer
+$ cd softlayer
 $ vi Dockerfile
 ```
 click i to insert the following text. I changed YOUR_SL_API_ID and YOUR_SL_API_KEY accordingly.
@@ -24,27 +27,25 @@ click i to insert the following text. I changed YOUR_SL_API_ID and YOUR_SL_API_K
 FROM ubuntu:16.04
 
 RUN apt-get update 
-
 RUN apt-get install -y \
     python \
     python-pip \
     python-setuptools \
     python-dev \ 
     openssh-client
-
 RUN pip install SoftLayer
-
 RUN echo '[softlayer]' > ~/.softlayer
-
 RUN echo 'username = YOUR_SL_API_ID' >> ~/.softlayer
-
 RUN echo 'api_key = YOUR_SL_API_KEY' >> ~/.softlayer
-
 RUN echo 'endpoint_url = https://api.softlayer.com/xmlrpc/v3.1/' >> ~/.softlayer
-
 RUN ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
 
 ENTRYPOINT ["/bin/bash"]
+```
+
+Since we're using the Ubuntu and we don't need any dependencies (eg. Redis) and web app (eg. Flask), we just created Dockerfile and build the image on it. `-t` or `--tag`. 
+```
+$ docker build -t slcli --file Dockerfile
 ```
 
 To overcome the latency issue and impact on real time data analytics, our team deployed kafka messaging system (open-source) in our test centers. Kafka serves as a central warehouse from which several service centers retrieve (consume) or immediately feed (produce) their real-time data for instant implementation. The goal of our data scientist team is to facilitate test takers exams schedules, adjust their exam questions based on their real-time answers and instant scoring system. Kafka facilitates all of our needs in our data warehouse and provides an efficiency and timeliness (Figure 2).  
