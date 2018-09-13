@@ -50,7 +50,7 @@ $ docker build -t slcli --file Dockerfile
 ```
 
 Running the docker image  
-`-it` for interactive and terminal flag 
+`-it` for interactive and terminal flag. Here I'm spinning docker without any volume mounted. 
 ```
 $ docker run -it slcli
 ```
@@ -64,3 +64,35 @@ I changed domain and hostname accordingly.
 ```
 slcli vs create --datacenter=dal09 --domain=<somedomain> --hostname=<some hostname> --os=CENTOS_7_64 --cpu=1 --memory=1024 --billing=hourly
 ```
+
+After you set up the docker vs, you can check if you have an up and running server. 
+```
+$ slcli vs list
+```
+
+If it asks to setup softlayer cli configuration
+```
+$ slcli config setup
+```
+
+username[] : 
+API: 
+end_point URL: https://api.softlayer.com/xmlrpc/v3.1/
+wait: 40
+
+
+You just keyed in the username from softlayer API. It's not the softlayer username. When you generate API key, you'll see the 7 digits, probably prefixed with 2 letters. 
+
+### Softlayer vs provision
+
+Once your softlayer server is provisioned in the cloud, you can now see from the list
+
+```
+$ slcli vs list
+```
+
+:..........:..........:................:...............:............:........:
+:    id    : hostname :   primary_ip   :   backend_ip  : datacenter : action :
+:..........:..........:................:...............:............:........:
+: 61455959 :  kenneth : 169.46.199.168 : 10.173.184.70 :   dal09    :   -    :
+:..........:..........:................:...............:............:........:
