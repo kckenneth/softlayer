@@ -75,10 +75,10 @@ If it asks to setup softlayer cli configuration
 $ slcli config setup
 ```
 
-username[] : 
-API: 
-end_point URL: https://api.softlayer.com/xmlrpc/v3.1/
-wait: 40
+`username[] :` 
+`API: `
+`end_point URL: https://api.softlayer.com/xmlrpc/v3.1/`
+`wait: 40`
 
 
 You just keyed in the username from softlayer API. It's not the softlayer username. When you generate API key, you'll see the 7 digits, probably prefixed with 2 letters. 
