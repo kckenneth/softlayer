@@ -184,7 +184,7 @@ MBP:softlayer kchen$ slcli vs credentials 61712999
 :..........:..........:
 : username : password :
 :..........:..........:
-:   root   : CaW7jfMp :
+:   root   :          :
 :..........:..........:
 ```
 
@@ -243,7 +243,7 @@ $ slcli vs credentials 61714451
 :..........:..........:
 : username : password :
 :..........:..........:
-:   root   : Nar6RUVr :
+:   root   :          :
 :..........:..........:
 ```
 
@@ -359,9 +359,15 @@ Unaccepted Keys:
 Rejected Keys:
 ```
 
-  
-  
-  
+Here, I need to redo the steps because it didn't work when I call master node and netstate. So I deprovision the salt cloud. 
 
-
+```
+# salt-cloud -dy mytestvs
+sl:
+    ----------
+    softlayer:
+        ----------
+        mytestvs:
+            True
+```
 
