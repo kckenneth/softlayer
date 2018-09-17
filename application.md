@@ -62,7 +62,7 @@ I changed domain and hostname accordingly.
 `--hostname=kenneth`
 
 ```
-slcli vs create --datacenter=dal09 --domain=<somedomain> --hostname=<some hostname> --os=CENTOS_7_64 --cpu=1 --memory=1024 --billing=hourly
+slcli vs create --datacenter=dal09 --domain=softlayer.com --hostname=kenneth --os=CENTOS_7_64 --cpu=1 --memory=1024 --billing=hourly
 ```
 
 After you set up the docker vs, you can check if you have an up and running server. 
