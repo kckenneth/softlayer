@@ -293,8 +293,8 @@ RUN apt-get install -y salt-master salt-minion salt-ssh salt-syndic salt-cloud s
 RUN mkdir -p /etc/salt/{cloud.providers.d,cloud.profiles.d}
 RUN pip install SoftLayer
 RUN echo '[softlayer]' > ~/.softlayer
-RUN echo 'username =SL1729689' >> ~/.softlayer
-RUN echo 'api_key =f81bdfabd3456bb71d87433cf36bf6826b238cd8c3213049cc5d90689bfde55d' >> ~/.softlayer
+RUN echo 'username =' >> ~/.softlayer
+RUN echo 'api_key =' >> ~/.softlayer
 RUN echo 'endpoint_url = https://api.softlayer.com/xmlrpc/v3.1/' >> ~/.softlayer
 RUN service salt-master start
 RUN service salt-syndic start
