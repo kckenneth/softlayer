@@ -377,3 +377,18 @@ sl:
             True
 ```
 
+
+
+
+Miscellaneous 
+
+If you're connecting to VS, you use `$ ssh root@169.55.204.86`. You cannot use the hostname `kenneth` although you use `kenneth` as hostname when you provision VS in the first place. It's because of the DNS system. If you want to use the hostname, you can do so by updating in `hosts` folder. 
+```
+$ vi /etc/hosts/
+169.55.204.86 kenneth
+```
+
+After you updated the hosts, you can ssh next time by using 
+```
+$ ssh root@kenneth
+```
