@@ -161,6 +161,12 @@ Once you know how to set up softlayer server, you can deprovision by `vs cancel`
 $ slcli vs cancel 61455959
 ```
 
+# Installing Docker CE in Ubuntu
+We're going to install docker in virtual server. The idea is, we will create Virtual Server (VS) in Softlayer cloud. Once VS is launched, we will install Docker. Remember, this is installing docker so that we can launch docker container on top of the VS we just created. 
+
+1. Launch Virtual Server which will come with Ubuntu OS 
+2. Install Docker on Ubuntu OS 
+3. Spin up docker container (with many apps, eg, Python) 
 
 ```
 $ slcli vs create --datacenter=dal09 --domain=softlayer.com --hostname=kenneth --os=CENTOS_7_64 --cpu=1 --memory=1024 --billing=hourly
