@@ -161,3 +161,56 @@ Once you know how to set up softlayer server, you can deprovision by `vs cancel`
 $ slcli vs cancel 61455959
 ```
 
+
+```
+$ slcli vs create --datacenter=dal09 --domain=softlayer.com --hostname=kenneth --os=CENTOS_7_64 --cpu=1 --memory=1024 --billing=hourly
+:.........:......................................:
+:    name : value                                :
+:.........:......................................:
+:      id : 61712999                             :
+: created : 2018-09-16T21:38:52-04:00            :
+:    guid : 28ad22ce-5ca5-447c-9264-92c63e625544 :
+:.........:......................................:
+```
+
+```
+$ slcli vs list
+:..........:..........:...............:................:............:........:
+:    id    : hostname :   primary_ip  :   backend_ip   : datacenter : action :
+:..........:..........:...............:................:............:........:
+: 61712999 : kenneth  : 169.55.204.86 : 10.143.143.197 :   dal09    :   -    :
+:..........:..........:...............:................:............:........:
+MBP:softlayer kchen$ slcli vs credentials 61712999
+:..........:..........:
+: username : password :
+:..........:..........:
+:   root   : CaW7jfMp :
+:..........:..........:
+```
+
+
+Created ssh keygen to establish connection between host and softlayer server I just created. 
+```
+$ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa -C 'w251_ssh_keys' 
+```
+
+ssh into softlayer virtual server with the IP generated. The password is obtained from credentials call shown above. Although the last two letters were omitted for security purposes. 
+
+```
+$ ssh root@169.55.204.86
+password: 
+[root@kenneth ~]# cd .ssh
+# vi w251.pub
+```
+copied and pasted the w251.pub from the host. Then place the key in authorized_keys
+
+```
+# cat w251.pub >>authorized_keys
+```
+Next time log in will bypass the password requirement
+```
+$ ssh -i .ssh/w251 root@169.55.204.86
+[root@kenneth ~]# 
+```
+
+
