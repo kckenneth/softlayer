@@ -192,6 +192,8 @@ MBP:softlayer kchen$ slcli vs credentials 61712999
 Created ssh keygen to establish connection between host and softlayer server I just created. 
 ```
 $ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa -C 'w251_ssh_keys' 
+$ slcli sshkey add -f ~/.ssh/w251.pub --note 'added during HW2' w251key
+SSH key added: 6f:f0:dc:83:ad:8c:b9:30:25:9d:f1:85:9f:a9:89:88
 ```
 
 ssh into softlayer virtual server with the IP generated. The password is obtained from credentials call shown above. Although the last two letters were omitted for security purposes. 
@@ -212,5 +214,96 @@ Next time log in will bypass the password requirement
 $ ssh -i .ssh/w251 root@169.55.204.86
 [root@kenneth ~]# 
 ```
+
+### Setting up Salt Cloud on Softlayer VS 
+Remember to change the last identifier, I changed to `w251key` that I used when creating ssh key.
+
+```
+slcli vs create -d hou02 --os UBUNTU_LATEST_64 --cpu 1 --memory 1024 --hostname saltmaster --domain someplace.net --key w251key
+
+This action will incur charges on your account. Continue? [y/N]: y
+:.........:......................................:
+:    name : value                                :
+:.........:......................................:
+:      id : 61714451                             :
+: created : 2018-09-16T22:20:37-04:00            :
+:    guid : 989af8d3-ca95-41a3-bb9e-2ff636b38c5f :
+:.........:......................................:
+```
+
+```
+$ slcli vs list
+:..........:............:................:................:............:........:
+:    id    :  hostname  :   primary_ip   :   backend_ip   : datacenter : action :
+:..........:............:................:................:............:........:
+: 61712999 :  kenneth   : 169.55.204.86  : 10.143.143.197 :   dal09    :   -    :
+: 61714451 : saltmaster : 184.173.59.133 : 10.77.208.197  :   hou02    :   -    :
+:..........:............:................:................:............:........:
+$ slcli vs credentials 61714451
+:..........:..........:
+: username : password :
+:..........:..........:
+:   root   : Nar6RUVr :
+:..........:..........:
+```
+
+Now ssh into 2nd VS I just created. 
+```
+$ ssh root@184.173.59.133
+password:
+root@saltmaster:~#
+```
+
+## Installing Docker in Virtual Server
+
+```
+# apt-get update
+apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+    
+# add the docker repo    
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+ 
+# install it
+apt-get update
+apt-get install docker-ce
+```
+
+## Make Docker image 
+
+```
+$ vi Dockerfile
+
+FROM ubuntu:16.04
+
+RUN apt-get update
+RUN apt-get install -y wget python-setuptools python-dev build-essential
+RUN easy_install pip
+RUN wget -O - https://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest/SALTSTACK-GPG-KEY.pub | apt-key add -
+RUN echo 'deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest xenial main' > /etc/apt/sources.list.d/saltstack.list
+RUN apt-get update
+RUN apt-get install -y salt-master salt-minion salt-ssh salt-syndic salt-cloud salt-api
+RUN mkdir -p /etc/salt/{cloud.providers.d,cloud.profiles.d}
+RUN pip install SoftLayer
+RUN echo '[softlayer]' > ~/.softlayer
+RUN echo 'username =SL1729689' >> ~/.softlayer
+RUN echo 'api_key =f81bdfabd3456bb71d87433cf36bf6826b238cd8c3213049cc5d90689bfde55d' >> ~/.softlayer
+RUN echo 'endpoint_url = https://api.softlayer.com/xmlrpc/v3.1/' >> ~/.softlayer
+RUN service salt-master start
+RUN service salt-syndic start
+RUN service salt-api start
+
+ENTRYPOINT ["/bin/bash"]
+```
+
+
+
 
 
