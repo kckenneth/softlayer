@@ -303,7 +303,65 @@ RUN service salt-api start
 ENTRYPOINT ["/bin/bash"]
 ```
 
+## Configure Salt Cloud
 
+### Making two folders simultaneously
+```
+mkdir -p /etc/salt/{cloud.providers.d,cloud.profiles.d}
+```
+### Making softlayer.conf in cloud.providers.d folder
+Change API name and KEY. You can either do with `cat` line by line or vi and copy and paste the following. 
+```
+cat > /etc/salt/cloud.providers.d/softlayer.conf
+sl:
+  minion:
+    master: YOUR_VM_PUBLIC_IP
+  user: YOUR_SL_API_ID
+  apikey: YOUR_SL_API_KEY
+  driver: softlayer
+```
+
+### Making softlayer.conf in cloud.profiles.d folder
+```
+$ cat > /etc/salt/cloud.profiles.d/softlayer.conf
+sl_ubuntu_small:
+  provider: sl
+  image: UBUNTU_LATEST_64
+  cpu_number: 1
+  ram: 1024
+  disk_size: 25
+  local_disk: True
+  hourly_billing: True
+  domain: somewhere.net
+  location: dal06
+  ```
+  
+### Run docker in Salt VS
+This will create a docker container, volume mounting from two configuration files I just created. Once the container is created, you will see the hostname changes to the container id. 
+```
+root@saltmaster:~# docker run -it -v /etc/salt/cloud.providers.d:/etc/salt/cloud.providers.d -v /etc/salt/cloud.profiles.d:/etc/salt/cloud.profiles.d salt
+root@e22c2b2fcc3f:/# 
+```
+  
+### Run salt cloud in docker container
+This will take a few minutes. I saw a bunch of updates, including python and what not. 
+```
+salt-cloud -p sl_ubuntu_small mytestvs
+```
+  
+### View minion under salt manager in docker container 
+```
+# salt-key -L
+Accepted Keys:
+mytestvs
+Denied Keys:
+Unaccepted Keys:
+Rejected Keys:
+```
+
+  
+  
+  
 
 
 
