@@ -429,7 +429,8 @@ This will create a docker container, volume mounting from two configuration file
 root@saltmaster:~# docker run -it -v /etc/salt/cloud.providers.d:/etc/salt/cloud.providers.d -v /etc/salt/cloud.profiles.d:/etc/salt/cloud.profiles.d salt
 root@e22c2b2fcc3f:/# 
 ```
-  
+
+## Privision of Minion 
 ### Run salt cloud in docker container
 This will take a few minutes. I saw a bunch of updates, including python and what not. Be patient. 
 ```
@@ -447,24 +448,7 @@ It didn't work. So I exited the container, (removed the unused docker container 
 # salt-cloud -p sl_ubuntu_small mytestvs1
 ```
 
-### View minion (a new VS) under salt manager 
-```
-# salt-key -L
-Accepted Keys:
-mytestvs
-Denied Keys:
-Unaccepted Keys:
-Rejected Keys:
-```
-#### Option
-If you have created more minions and they are not in your Accepted Keys, you can add them by
-```
-# salt-key --accept=<key>
-# salt-key --accept-all
-```
-https://docs.saltstack.com/en/getstarted/fundamentals/install.html
-
-
+This is the output if your minionn privision is successful. 
 ```
 mytestvs1:
     ----------
@@ -521,6 +505,23 @@ root@saltmaster:~# slcli vs list
 : 62141128 : saltmaster : 184.173.51.156 : 10.77.243.48 :   hou02    :   -    :
 :..........:............:................:..............:............:........:
 ```
+
+### View minion (a new VS) under salt manager 
+```
+# salt-key -L
+Accepted Keys:
+mytestvs
+Denied Keys:
+Unaccepted Keys:
+Rejected Keys:
+```
+#### Option
+If you have created more minions and they are not in your Accepted Keys, you can add them by
+```
+# salt-key --accept=<key>
+# salt-key --accept-all
+```
+https://docs.saltstack.com/en/getstarted/fundamentals/install.html
 
 I'm in one of the VS I initially created 'saltmaster'. 
 ```
