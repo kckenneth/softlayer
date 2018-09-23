@@ -94,8 +94,8 @@ $ slcli config setup
 ```
 
 `username[] :`  
-`API: ` 
-`end_point URL: https://api.softlayer.com/xmlrpc/v3.1/` 
+`API: `  
+`end_point URL: https://api.softlayer.com/xmlrpc/v3.1/`  
 `wait: 40`
 
 
