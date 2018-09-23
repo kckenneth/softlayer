@@ -284,6 +284,55 @@ $ ssh root@184.173.59.133
 password:
 root@saltmaster:~#
 ```
+## Installing Softlayer API in Softlayer VS 
+
+This is tricky and confusing as hell. But I will detail here as much as I understand. You created a Virtual Server (VS) in Softlayer. Now what's important is your VS. This is where all your work will be processed, your job, your data processing. Softlayer is just a trademark that provides cloud services, including the virtual server we just created. So after you created a VS in Softlayer, you can think of your VS as your own personal computer. You can do anything, install the apps, upgrade the apps as necessary. 
+
+Now in this VS, you'd definitely need python, the most versatile program. You also need some work scheduler such as salt master (I assume). You also like to install Softlayer api so that your VS can connect to your Softlayer account. It sounds confusing at first. Yes, you're right. You're communicating from the VS that you created in Softlayer, to your Softlayer account. 
+
+### I. Option 1: Docker 
+How to install those necessary apps and the apps that you like to have in your VS? You could build a Docker image where you can specify what applications you want to install. So by defining the apps to install in Docker image, once you run the Docker, it will automatically retrieve all those apps and would install in your VS. Of course, the first step is to install the base Docker program in your VS. So I detailed how to install Docker in VS below, titled `Installing Docker in Virtual Server`. Sounds neat, right? The problem is, sometimes, even if you specify in Docker image to install some applications, they might not retrieve and install as expected. However, it's good to install Docker in your VS so that you can run any containers down the road. 
+
+### II. Option 2: Install Softlayer in VS
+
+We are now in one of the VS we created in Softlayer. So denoted by `#`. To install `pip` and necessary upgrade, 
+```
+# sudo apt-get update && sudo apt-get -y upgrade
+# sudo apt-get install python-pip
+# pip install --upgrade pip
+# sudo pip install Softlayer
+```
+#### Install Salt Stack in VS manually
+
+Run the following command to import the SaltStack repository key:
+```
+# wget -O - https://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
+```
+
+Save the following file to /etc/apt/sources.list.d/saltstack.list:
+```
+# cat > /etc/apt/sources.list.d/saltstack.list
+deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest xenial main
+```
+Use CTRL-D to complete changes to the file and return to the # prompt.
+
+Run 
+```
+# sudo apt-get update
+```
+
+Install the salt-minion, salt-master, or other Salt components:
+
+```
+# sudo apt-get install -y salt-master salt-minion salt-ssh salt-syndic salt-cloud salt-api
+```
+
+Start all services:
+```
+# service salt-master start
+# service salt-syndic start
+# service salt-api start
+```
 
 ## Installing Docker in Virtual Server
 
@@ -382,12 +431,23 @@ root@e22c2b2fcc3f:/#
 ```
   
 ### Run salt cloud in docker container
-This will take a few minutes. I saw a bunch of updates, including python and what not. Be patients. 
+This will take a few minutes. I saw a bunch of updates, including python and what not. Be patient. 
 ```
-salt-cloud -p sl_ubuntu_small mytestvs
+# salt-cloud -p sl_ubuntu_small mytestvs
 ```
-  
-### View minion under salt manager in docker container 
+Note
+I create 'mytestvs' (a new VS) in docker container. It takes a while. After done, I checked 
+```
+# salt 'mytestvs' network.interface_ip eth1  
+# salt '*' status.netstats
+```
+It didn't work. So I exited the container, (removed the unused docker container by `docker rm -f $(docker ps -aq)`). In the saltmaster VS, I created a new VS named 'mytestvs1' 
+
+```
+# salt-cloud -p sl_ubuntu_small mytestvs1
+```
+
+### View minion (a new VS) under salt manager 
 ```
 # salt-key -L
 Accepted Keys:
@@ -396,6 +456,99 @@ Denied Keys:
 Unaccepted Keys:
 Rejected Keys:
 ```
+#### Option
+If you have created more minions and they are not in your Accepted Keys, you can add them by
+```
+# salt-key --accept=<key>
+# salt-key --accept-all
+```
+https://docs.saltstack.com/en/getstarted/fundamentals/install.html
+
+
+```
+mytestvs1:
+    ----------
+    accountId:
+        1729689
+    createDate:
+        2018-09-23T13:01:39-04:00
+    deployed:
+        True
+    domain:
+        somewhere.net
+    fullyQualifiedDomainName:
+        mytestvs1.somewhere.net
+    globalIdentifier:
+        7340b51f-5d40-4c11-9b6b-cb2c109ac2ef
+    hostname:
+        mytestvs1
+    id:
+        62146822
+    lastPowerStateId:
+    lastVerifiedDate:
+    maxCpu:
+        1
+    maxCpuUnits:
+        CORE
+    maxMemory:
+        1024
+    metricPollDate:
+    modifyDate:
+    password:
+        XXXXXXX
+    provisionDate:
+    public_ip:
+        184.173.51.155
+    startCpus:
+        1
+    statusId:
+        1001
+    username:
+        root
+    uuid:
+        3cb319a5-27cc-4c8e-aa7c-e471dff29861
+```
+ 
+I checked how many VS I created. 
+```
+root@saltmaster:~# slcli vs list
+:..........:............:................:..............:............:........:
+:    id    :  hostname  :   primary_ip   :  backend_ip  : datacenter : action :
+:..........:............:................:..............:............:........:
+: 62139488 :  kenneth   : 169.54.221.19  : 10.142.25.90 :   dal09    :   -    :
+: 62146204 :  mytestvs  : 184.173.51.157 : 10.77.243.55 :   hou02    :   -    :
+: 62146822 : mytestvs1  : 184.173.51.155 : 10.77.243.42 :   hou02    :   -    :
+: 62141128 : saltmaster : 184.173.51.156 : 10.77.243.48 :   hou02    :   -    :
+:..........:............:................:..............:............:........:
+```
+
+I'm in one of the VS I initially created 'saltmaster'. 
+```
+root@saltmaster:~# salt 'mytestvs1' network.interface_ip eth1
+mytestvs1:
+    184.173.51.155
+```
+Checking network status 
+```
+root@saltmaster:~# salt '*' status.netstats
+mytestvs1:
+    ----------
+    IpExt:
+        ----------
+        InBcastOctets:
+            0
+        InBcastPkts:
+            0
+        InCsumErrors:
+            0
+        InECT0Pkts:
+            0
+        InECT1Pkts:
+            0
+```
+
+
+
 
 ### Deprovisioning the minion in salt-cloud
 
