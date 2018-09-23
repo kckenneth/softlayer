@@ -463,7 +463,7 @@ It didn't work. So I exited the container, (removed the unused docker container 
 # salt-cloud -p sl_ubuntu_small mytestvs1
 ```
 
-This is the output if your minionn privision is successful. 
+This is the output if your minion privision is successful. 
 ```
 mytestvs1:
     ----------
@@ -563,9 +563,6 @@ mytestvs1:
             0
 ```
 
-
-
-
 ### Deprovisioning the minion in salt-cloud
 
 Here, I need to redo the steps because it didn't work when I call master node and netstate. So I deprovision the salt cloud. 
@@ -588,12 +585,9 @@ Unaccepted Keys:
 Rejected Keys:
 ```
 
-
-
-
 # Miscellaneous Notes
 
-If you're connecting to VS, you use `$ ssh root@169.55.204.86`. You cannot use the hostname `kenneth` although you use `kenneth` as hostname when you provision VS in the first place. It's because of the DNS system. If you want to use the hostname, you can do so by updating in `hosts` folder. 
+If you're connecting to VS, you use `$ ssh root@169.55.204.86`. You cannot use the hostname `kenneth` although you use `kenneth` as your hostname when you provision VS in the first place. It's because of the DNS system. If you want to use the hostname, you can do so by updating in `hosts` folder. 
 ```
 $ vi /etc/hosts/
 169.55.204.86 kenneth
