@@ -99,9 +99,9 @@ $ slcli config setup
 `wait: 40`
 
 
-You just keyed in the username from softlayer API. It's not the softlayer username. When you generate API key, you'll see the 7 digits, probably prefixed with 2 letters. 
+You just keyed in the username from softlayer API. It's not the softlayer username. When you generate API key, you'll see the 7 digits, probably prefixed with 2 letters; SL. 
 
-### Softlayer vs provision
+### Softlayer vs (Virtual Server) provision
 
 Once your softlayer server is provisioned in the cloud, you can now see from the list. This will take a few minutes for softlayer to setup. So you won't see anything showing up from the list. You can check by `ready`. If it's ready, it will show `READY`.  
 
