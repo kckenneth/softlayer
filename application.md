@@ -219,6 +219,11 @@ $ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa -C 'w251_ssh_keys'
 $ slcli sshkey add -f ~/.ssh/w251.pub --note 'added during HW2' w251key
 SSH key added: 6f:f0:dc:83:ad:8c:b9:30:25:9d:f1:85:9f:a9:89:88
 ```
+##### ssh parameters
+`-f` for file you're creating. Some people name the file as x_rsa because rsa is one of the key gen protocol. The others include rsa1, dsa, ecdsa.  
+`b` for bits. The default is 2048. 
+`-t` for type declaration. It is rsa here.  
+`-C` for comment. This is optional tag. 
 
 ssh into softlayer virtual server with the IP generated. The password is obtained from credentials call shown above. Although the last two letters were omitted for security purposes. 
 
