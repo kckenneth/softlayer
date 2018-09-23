@@ -199,11 +199,11 @@ $ slcli vs create --datacenter=dal09 --domain=softlayer.com --hostname=kenneth -
 
 ```
 $ slcli vs list
-:..........:..........:...............:................:............:........:
-:    id    : hostname :   primary_ip  :   backend_ip   : datacenter : action :
-:..........:..........:...............:................:............:........:
-: 61712999 : kenneth  : 169.55.204.86 : 10.143.143.197 :   dal09    :   -    :
-:..........:..........:...............:................:............:........:
+:..........:..........:...............:..............:............:........:
+:    id    : hostname :   primary_ip  :  backend_ip  : datacenter : action :
+:..........:..........:...............:..............:............:........:
+: 62139488 : kenneth  : 169.54.221.19 : 10.142.25.90 :   dal09    :   -    :
+:..........:..........:...............:..............:............:........:
 MBP:softlayer kchen$ slcli vs credentials 61712999
 :..........:..........:
 : username : password :
@@ -225,23 +225,25 @@ SSH key added: 6f:f0:dc:83:ad:8c:b9:30:25:9d:f1:85:9f:a9:89:88
 `-t` for type declaration. It is rsa here. Other protocols = rsa1, dsa, ecdsa  
 `-C` for comment. This is optional tag.  
 
-ssh into softlayer virtual server with the IP generated. The password is obtained from credentials call shown above. Although the last two letters were omitted for security purposes. 
+##### Setting up ssh key pair in SL VS 
+##### (1) Logging into SL VS 
 
+ssh into softlayer virtual server with the IP generated. The password is obtained from credentials call shown above. 
 ```
-$ ssh root@169.55.204.86
+$ ssh root@169.54.221.19
 password: 
 [root@kenneth ~]# cd .ssh
-# vi w251.pub
+# vi authorized_keys 
 ```
-copied and pasted the w251.pub from the host. Then place the key in authorized_keys
-
+Open another terminal, go to your w251.pub by `$ cd ~/.ssh` and `more w251.pub`. Copy the output and paste in the SL's authorized_keys file. Next time log in will bypass the password requirement
 ```
-# cat w251.pub >>authorized_keys
-```
-Next time log in will bypass the password requirement
-```
-$ ssh -i .ssh/w251 root@169.55.204.86
+$ ssh -i .ssh/w251 root@169.55.221.19
 [root@kenneth ~]# 
+```
+##### (2) Directly pasting rsa pub key into SL VS 
+You can also directly paste the rsa pub key into SL VS. You are now at your local computer. However, it might not work for Mac OS because I found some Linux commands do not work in Mac OS, especially piping as well. 
+```
+$ cat ~/.ssh/w251.pub | ssh root@169.55.221.19 "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod -R go= ~/.ssh && cat >> ~/.ssh/authorized_keys"
 ```
 
 ### Setting up Salt Cloud on Softlayer VS 
