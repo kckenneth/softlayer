@@ -256,21 +256,21 @@ This action will incur charges on your account. Continue? [y/N]: y
 :.........:......................................:
 :    name : value                                :
 :.........:......................................:
-:      id : 61714451                             :
-: created : 2018-09-16T22:20:37-04:00            :
-:    guid : 989af8d3-ca95-41a3-bb9e-2ff636b38c5f :
+:      id : 62141128                             :
+: created : 2018-09-23T10:17:12-04:00            :
+:    guid : 00ba177c-57c4-4ffb-b355-c1a0d17132a2 :
 :.........:......................................:
 ```
 
 ```
 $ slcli vs list
-:..........:............:................:................:............:........:
-:    id    :  hostname  :   primary_ip   :   backend_ip   : datacenter : action :
-:..........:............:................:................:............:........:
-: 61712999 :  kenneth   : 169.55.204.86  : 10.143.143.197 :   dal09    :   -    :
-: 61714451 : saltmaster : 184.173.59.133 : 10.77.208.197  :   hou02    :   -    :
-:..........:............:................:................:............:........:
-$ slcli vs credentials 61714451
+:..........:............:................:..............:............:........:
+:    id    :  hostname  :   primary_ip   :  backend_ip  : datacenter : action :
+:..........:............:................:..............:............:........:
+: 62139488 :  kenneth   : 169.54.221.19  : 10.142.25.90 :   dal09    :   -    :
+: 62141128 : saltmaster : 184.173.51.156 : 10.77.243.48 :   hou02    :   -    :
+:..........:............:................:..............:............:........:
+$ slcli vs credentials 62141128
 :..........:..........:
 : username : password :
 :..........:..........:
@@ -278,7 +278,7 @@ $ slcli vs credentials 61714451
 :..........:..........:
 ```
 
-Now ssh into 2nd VS I just created. 
+Now ssh into 2nd VS I just created. The first VS was CENTOS and the second VS is Ubuntu. Since we're going to install Docker into Ubuntu, we ssh into the 2nd VS. 
 ```
 $ ssh root@184.173.59.133
 password:
@@ -287,28 +287,30 @@ root@saltmaster:~#
 
 ## Installing Docker in Virtual Server
 
+Since we're not at VS terminal, I presented with a pound or hash sign `#`, instead of a dollar sign `$`.  
+Double pound signs `##` is for personal comments. 
 ```
 # apt-get update
-apt-get install \
+# apt-get install \
     apt-transport-https \
     ca-certificates \
     curl \
     software-properties-common
     
-# add the docker repo    
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+## add the docker repo    
+# curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
  
-# install it
+## install it
 apt-get update
 apt-get install docker-ce
 ```
 
 ## Make Docker image 
-
+#### 1. Dockerfile 
 ```
 $ vi Dockerfile
 
@@ -333,13 +335,18 @@ RUN service salt-api start
 
 ENTRYPOINT ["/bin/bash"]
 ```
+#### 2. Build Docker image 
+```
+# docker build --tag salt --file Dockerfile .
+```
 
 ## Configure Salt Cloud
 
 ### Making two folders simultaneously
 ```
-mkdir -p /etc/salt/{cloud.providers.d,cloud.profiles.d}
-```
+mkdir -p /etc/salt/{cloud.providers.d,cloud.profiles.d} 
+``` 
+
 ### Making softlayer.conf in cloud.providers.d folder
 Change API name and KEY. You can either do with `cat` line by line or vi and copy and paste the following. 
 ```
@@ -375,7 +382,7 @@ root@e22c2b2fcc3f:/#
 ```
   
 ### Run salt cloud in docker container
-This will take a few minutes. I saw a bunch of updates, including python and what not. 
+This will take a few minutes. I saw a bunch of updates, including python and what not. Be patients. 
 ```
 salt-cloud -p sl_ubuntu_small mytestvs
 ```
@@ -390,6 +397,8 @@ Unaccepted Keys:
 Rejected Keys:
 ```
 
+### Deprovisioning the minion in salt-cloud
+
 Here, I need to redo the steps because it didn't work when I call master node and netstate. So I deprovision the salt cloud. 
 
 ```
@@ -400,6 +409,14 @@ sl:
         ----------
         mytestvs:
             True
+```
+Check if there's any Accepted keys after deprovisioning. 
+```
+# salt-key -L
+Accepted Keys:
+Denied Keys:
+Unaccepted Keys:
+Rejected Keys:
 ```
 
 
