@@ -7,7 +7,7 @@
 
 __Synopsis__  
 
-   This is a walk through for how to set up softlayer via CLI. You need to install Docker in your local computer. The procedure will not be covered in this procedure. 
+   This is a walk through for how to set up softlayer via CLI. You need to install Docker in your local computer. 
 
 __Softlayer__
 
