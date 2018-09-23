@@ -361,7 +361,7 @@ apt-get install docker-ce
 ## Make Docker image 
 #### 1. Dockerfile 
 ```
-$ vi Dockerfile
+# vi Dockerfile
 
 FROM ubuntu:16.04
 
@@ -393,13 +393,13 @@ ENTRYPOINT ["/bin/bash"]
 
 ### Making two folders simultaneously
 ```
-mkdir -p /etc/salt/{cloud.providers.d,cloud.profiles.d} 
+# mkdir -p /etc/salt/{cloud.providers.d,cloud.profiles.d} 
 ``` 
 
 ### Making softlayer.conf in cloud.providers.d folder
 Change API name and KEY. You can either do with `cat` line by line or vi and copy and paste the following. 
 ```
-cat > /etc/salt/cloud.providers.d/softlayer.conf
+# cat > /etc/salt/cloud.providers.d/softlayer.conf
 sl:
   minion:
     master: YOUR_VM_PUBLIC_IP
@@ -410,7 +410,7 @@ sl:
 
 ### Making softlayer.conf in cloud.profiles.d folder
 ```
-$ cat > /etc/salt/cloud.profiles.d/softlayer.conf
+# cat > /etc/salt/cloud.profiles.d/softlayer.conf
 sl_ubuntu_small:
   provider: sl
   image: UBUNTU_LATEST_64
@@ -430,7 +430,22 @@ root@saltmaster:~# docker run -it -v /etc/salt/cloud.providers.d:/etc/salt/cloud
 root@e22c2b2fcc3f:/# 
 ```
 
-## Privision of Minion 
+# Privision of Minion 
+
+You must have installed all following components already.  
+1. Softlayer  
+2. saltstack  
+3. Docker  
+
+### 1. Softlayer 
+Your base account from which any charges of the minion servers provision will be deducted. This is also where you need to create salt configuraion where any minion you'd create, what specs you want to create for your minion server, like CPU, RAM, so on. 
+
+### 2. saltstack
+Basically, I found saltstack is kind of like a work scheduler or manager, that you can control any of the minion servers you create. Remember, the server you will create is considered 'minion' because you're creating from your top-level server 'saltmaster' which is also you created earlier on. When you provision your minion server, you need to use `salt-cloud`, not `slcli vs create`. If you use `slcli vs create`, it will only create another standalone server. 
+
+### 3. Docker
+Docker is if you want to create a container for any of the downstream jobs where you'd need python, redis, kafka, etc. 
+
 ### Run salt cloud in docker container
 This will take a few minutes. I saw a bunch of updates, including python and what not. Be patient. 
 ```
