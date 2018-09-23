@@ -1,7 +1,7 @@
 
 |Title |  Softlayer Application |
 |-----------|----------------------------------|
-|Author | Kenneth Chen, Ph.D |
+|Author | Kenneth Chen |
 |Utility | |
 |Date | 9/10/2018 |
 
