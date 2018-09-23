@@ -65,19 +65,37 @@ I changed domain and hostname accordingly.
 slcli vs create --datacenter=dal09 --domain=softlayer.com --hostname=kenneth --os=CENTOS_7_64 --cpu=1 --memory=1024 --billing=hourly
 ```
 
-After you set up the docker vs, you can check if you have an up and running server. 
+After you set up the docker vs, you can check if you have an up and running server. The primary_ip and backend_ip creation might be a bit slow. 
 ```
 $ slcli vs list
+:..........:..........:............:............:............:.............:
+:    id    : hostname : primary_ip : backend_ip : datacenter :    action   :
+:..........:..........:............:............:............:.............:
+: 62139488 : kenneth  :     -      :     -      :   dal09    : Assign Host :
+:..........:..........:............:............:............:.............:
 ```
 
-If it asks to setup softlayer cli configuration
+You can check softlayer configuration. 
+```
+$ slcli config show
+:..............:..................................................................:
+:         Name : Value                                                            :
+:..............:..................................................................:
+:     Username : SL1234567                                                        :
+:      API Key : XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  :
+: Endpoint URL : https://api.softlayer.com/xmlrpc/v3.1                            :
+:      Timeout : 40.0                                                             :
+:..............:..................................................................:
+```
+
+If it asks to setup softlayer cli configuration.
 ```
 $ slcli config setup
 ```
 
-`username[] :` 
-`API: `
-`end_point URL: https://api.softlayer.com/xmlrpc/v3.1/`
+`username[] :`  
+`API: ` 
+`end_point URL: https://api.softlayer.com/xmlrpc/v3.1/` 
 `wait: 40`
 
 
