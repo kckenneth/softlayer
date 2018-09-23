@@ -219,13 +219,13 @@ $ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa -C 'w251_ssh_keys'
 $ slcli sshkey add -f ~/.ssh/w251.pub --note 'added during HW2' w251key
 SSH key added: 6f:f0:dc:83:ad:8c:b9:30:25:9d:f1:85:9f:a9:89:88
 ```
-##### ssh parameters
+#### ssh parameters
 `-f` for file you're creating. Some people name the file as x_rsa to be more descriptive about the protocol used.  
 `-b` for bits. The default is 2048.  
 `-t` for type declaration. It is rsa here. Other protocols = rsa1, dsa, ecdsa  
 `-C` for comment. This is optional tag.  
 
-##### Setting up ssh key pair in SL VS 
+#### Setting up ssh key pair in SL VS 
 ##### (1) Logging into SL VS 
 
 ssh into softlayer virtual server with the IP generated. The password is obtained from credentials call shown above. 
