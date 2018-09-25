@@ -586,6 +586,7 @@ Unaccepted Keys:
 Rejected Keys:
 ```
 
+# Week3 
 # Mosquitto
 
 ```
@@ -619,6 +620,17 @@ $ ssh root@184.173.26.246
 
 ### Question: how are block chains relevant for the Internet of Things?
 
+Blockchains are fundamental backbones of transaction ledger. At the same time, without centralized intervention and high fidelity of transaction chain, blockchain offers decentralized interaction among users. Internet of things is basically a legitimate digital interaction between physical products, eg, living room lightbulbs controlled by some physical device which in turn is controlled by human voice. Or remote sensor on home appliances via internet. When many diverse products are digitally connected, or commence interaction, the fidelity of communication becomes paramount. This is where blockchain concept offers a critical step towards maintaining the integrity of internet of things. 
+
+```
+# mosquitto_sub -t /applications/in/+/public/# -h 169.44.201.108
+
+{"t":1537917210,"d":[{"PRN":1,"el":8,"az":315,"ss":25,"used":true},{"PRN":8,"el":36,"az":268,"ss":23,"used":true},{"PRN":10,"el":55,"az":51,"ss":32,"used":true},{"PRN":11,"el":20,"az":313,"ss":23,"used":true},{"PRN":14,"el":64,"az":210,"ss":24,"used":false},{"PRN":18,"el":33,"az":313,"ss":26,"used":true},{"PRN":20,"el":32,"az":79,"ss":26,"used":false},{"PRN":21,"el":17,"az":138,"ss":0,"used":false},{"PRN":22,"el":6,"az":278,"ss":0,"used":false},{"PRN":24,"el":11,"az":42,"ss":36,"used":true},{"PRN":27,"el":33,"az":227,"ss":0,"used":false},{"PRN":31,"el":12,"az":167,"ss":23,"used":false},{"PRN":32,"el":88,"az":141,"ss":24,"used":false}]}
+{"t":1537917211,"d":[{"PRN":1,"el":8,"az":315,"ss":25,"used":true},{"PRN":8,"el":36,"az":268,"ss":22,"used":true},{"PRN":10,"el":55,"az":51,"ss":32,"used":true},{"PRN":11,"el":20,"az":313,"ss":22,"used":true},{"PRN":14,"el":64,"az":210,"ss":23,"used":false},{"PRN":18,"el":33,"az":313,"ss":26,"used":true},{"PRN":20,"el":32,"az":79,"ss":24,"used":true},{"PRN":21,"el":17,"az":138,"ss":0,"used":false},{"PRN":22,"el":6,"az":278,"ss":0,"used":false},{"PRN":24,"el":11,"az":42,"ss":35,"used":true},{"PRN":27,"el":33,"az":227,"ss":22,"used":false},{"PRN":31,"el":12,"az":167,"ss":23,"used":false},{"PRN":32,"el":88,"az":141,"ss":24,"used":true}]}
+```
+### Qeustion: Can you recognize some of the messages? What is their meaning?
+
+The output is from GPS GLONASS Satellite. PRN indicates parameter numbers, el for elevation. 
 
 # Miscellaneous Notes
 
