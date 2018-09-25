@@ -586,6 +586,40 @@ Unaccepted Keys:
 Rejected Keys:
 ```
 
+# Mosquitto
+
+```
+$ slcli vs create -d hou02 --os UBUNTU_LATEST_64 --cpu 2 --memory 2048 --hostname kenneth --domain someplace.net --billing=hourly
+:.........:......................................:
+:    name : value                                :
+:.........:......................................:
+:      id : 62234241                             :
+: created : 2018-09-25T18:50:42-04:00            :
+:    guid : 8164e05e-e51e-4b95-9220-18236a190d59 :
+:.........:......................................:
+
+$ slcli vs list
+:..........:..........:................:...............:............:........:
+:    id    : hostname :   primary_ip   :   backend_ip  : datacenter : action :
+:..........:..........:................:...............:............:........:
+: 62234241 : kenneth  : 184.173.26.246 : 10.77.200.159 :   hou02    :   -    :
+:..........:..........:................:...............:............:........:
+
+$ slcli vs credentials 62234241
+:..........:..........:
+: username : password :
+:..........:..........:
+:   root   :          :
+:..........:..........:
+
+$ ssh root@184.173.26.246
+# apt-get update
+# apt-get install mosquitto-clients
+```
+
+### Question: how are block chains relevant for the Internet of Things?
+
+
 # Miscellaneous Notes
 
 If you're connecting to VS, you use `$ ssh root@169.55.204.86`. You cannot use the hostname `kenneth` although you use `kenneth` as your hostname when you provision VS in the first place. It's because of the DNS system. If you want to use the hostname, you can do so by updating in `hosts` folder. 
