@@ -644,13 +644,30 @@ Test running
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --test  
 ```
 
-### I. Provision three vs
+### I. Keygen generation to setup ssh key pairs later on virtual servers
+
+In your local host terminal (laptop),
 ```
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
+$ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa 
+```
+
+Add your public key to your softlayer account. 
+`--note` flag is for softlayer account.  
+`w251key` the identifier after that is for later use when we communicate with the virtual servers we will provision later on.
+```
+$ slcli sshkey add -f ~/.ssh/w251.pub --note 'added during HW2' w251key
+```   
+
+### II. Provision three vs
+Note the hostname for three vs
+
+```
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
 ```
-### II. 
+### III. Setting up keygen in 3 nodes 
+Since we already provisioned 3 virtual servers or nodes, we like them to communicate each other without requiring any passwords. 
 
 
 
