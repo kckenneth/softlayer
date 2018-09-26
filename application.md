@@ -663,9 +663,9 @@ I will provision 4 virtual servers. You can also see the flags in short form and
 
 ```
 $ slcli vs create -d hou02 --os UBUNTU_LATEST_64 --cpu 1 --memory 1024 --hostname saltmaster --domain someplace.net --key w251key
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key w251key
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key w251key
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25  --key w251key
 ```
 ### III. Setting up keygen in 3 nodes 
 Since we already provisioned 3 virtual servers or nodes, we like them to communicate each other without requiring any passwords. 
