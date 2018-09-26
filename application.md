@@ -644,12 +644,16 @@ $ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa
 
 Add your public key to your softlayer account.  
 `--note` flag is for softlayer account.  
-`w251key` the identifier after that is for later use when we communicate with the virtual servers we will provision later on.
+`w251key` the identifier after that is for later use when we communicate with the virtual servers we will provision later on.  
+You don't need to privision vs to add ssh key to your softlayer account. 
 ```
 $ slcli sshkey add -f ~/.ssh/w251.pub --note 'added during HW2' w251key
+
+SSH key added: 49:aa:25:77:c3:b9:32:f5:30:0a:0a:f0:d3:94:09:d0
 ```   
 
-### II. Provision four vs
+### II. Provision four vs 
+##### This step is being done in local host, laptop
 
 A. Get three virtual servers provisioned, 2 vCPUs, 4G RAM, UBUNTU_16_64, two local disks 25G each, in San Jose. Make sure you attach a keypair. Pick intuitive names such as gpfs1, gpfs2, gpfs3. Note their internal ip addresses.
 
@@ -657,8 +661,29 @@ You can first test run the virtual server by using the flag `--test`. It will sh
 
 Test running
 ```
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --test  
+$ slcli vs create -d hou02 --os UBUNTU_LATEST_64 --cpu 1 --memory 1024 --hostname saltmaster --domain someplace.net --disk=25 --disk=25 --test  
+
+:................................................................:......:
+:                                                           Item : cost :
+:................................................................:......:
+:                                     1 x 2.0 GHz or higher Core : 0.02 :
+:                                                           1 GB : 0.01 :
+: Ubuntu Linux 18.04 LTS Bionic Beaver Minimal Install (64 bit)  : 0.00 :
+:                                                  25 GB (LOCAL) : 0.00 :
+:                                                  25 GB (LOCAL) : 0.00 :
+:                                        Reboot / Remote Console : 0.00 :
+:                      100 Mbps Public & Private Network Uplinks : 0.00 :
+:                                       0 GB Bandwidth Allotment : 0.00 :
+:                                                   1 IP Address : 0.00 :
+:                                                      Host Ping : 0.00 :
+:                                               Email and Ticket : 0.00 :
+:                                         Automated Notification : 0.00 :
+:          Unlimited SSL VPN Users & 1 PPTP VPN User per account : 0.00 :
+:                    Nessus Vulnerability Assessment & Reporting : 0.00 :
+:                                              Total hourly cost : 0.04 :
+:................................................................:......:
 ```
+
 I will provision 4 virtual servers. You can also see the flags in short form and long form. Note the hostname for three vs. Also make sure you'd use the identifer for `--key` flag. The identifier you created when you generated keygen on earlier step. 
 
 ```
@@ -667,8 +692,47 @@ $ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --b
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key w251key
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25  --key w251key
 ```
+Checking all virtual servers provisioned
+```
+$ slcli vs list 
+:..........:............:................:...............:............:........:
+:    id    :  hostname  :   primary_ip   :   backend_ip  : datacenter : action :
+:..........:............:................:...............:............:........:
+: 62312335 :   gpfs1    : 198.23.88.163  :  10.91.105.3  :   sjc01    :   -    :
+: 62312339 :   gpfs2    : 198.23.88.166  :  10.91.105.14 :   sjc01    :   -    :
+: 62312371 :   gpfs3    : 198.23.88.162  :  10.91.105.16 :   sjc01    :   -    :
+: 62311733 : saltmaster : 184.173.26.246 : 10.77.200.159 :   hou02    :   -    :
+:..........:............:................:...............:............:........:
+```
+
+
 ### III. Setting up keygen in 3 nodes 
-Since we already provisioned 3 virtual servers or nodes, we like them to communicate each other without requiring any passwords. 
+Since we already provisioned 3 virtual servers or nodes with `--key w251` key, the w251.pub public key is automatically added to each node ~/.ssh/authorized_keys file during privisioning. We also like them to communicate each other without requiring any passwords. So we need to add the private key (i.e., the key in our local host, laptop) to each of the three ndoes. The saltmaster node I created just in case, I need to communicate those 3 nodes from other servers.  
+`-i` flag is to specify the private key directory. Since we're connecting to the server, we need password. Instead of typing the password, just providing the key will bypass the password step. We're also directing the private key to be copied into virtual server .ssh directory.
+
+```
+$ scp -i ~/.ssh/w251 ~/.ssh/w251 root@198.23.88.163:/root/.ssh/
+```
+
+logging into each node separately, while in the node following three commands will be executed. There is no default .bash_profile and nodefile. So calling vi will automatically create those file. Every time when you call `vi`, type in the script after the respective commands. In nodefile, depending on the node you're in, you change the `:quorum:` position accordingly. 
+
+```
+# vi /root/.bash_profile
+export PATH=$PATH:/usr/lpp/mmfs/bin
+
+# vi /root/nodefile
+gpfs1:quorum:
+gpfs2::
+gpfs3::
+
+# vi /etc/hosts
+10.91.105.3		gpfs1
+10.91.105.14	gpfs2
+10.91.106.16	gpfs3
+```
+
+
+
 
 
 
