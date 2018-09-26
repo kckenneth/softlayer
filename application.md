@@ -632,6 +632,31 @@ Blockchains are fundamental backbones of transaction ledger. At the same time, w
 
 The output is from GPS GLONASS Satellite. PRN indicates parameter numbers, el for elevation. 
 
+# Week4
+# GPFS Setup
+
+A. Get three virtual servers provisioned, 2 vCPUs, 4G RAM, UBUNTU_16_64, two local disks 25G each, in San Jose. Make sure you attach a keypair. Pick intuitive names such as gpfs1, gpfs2, gpfs3. Note their internal ip addresses.
+
+You can first test run the virtual server by using the flag `--test`. It will show you how much it will charge for each parameters. If you need help with the flag, you can call `slcli vs create --help`. Since I'm creating two local disks, I used `--disk=25` twice because the flag allows multiple occurence. 
+
+Test running
+```
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --test  
+```
+
+### I. Provision three vs
+```
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
+```
+### II. 
+
+
+
+
+
+
 # Miscellaneous Notes
 
 If you're connecting to VS, you use `$ ssh root@169.55.204.86`. You cannot use the hostname `kenneth` although you use `kenneth` as your hostname when you provision VS in the first place. It's because of the DNS system. If you want to use the hostname, you can do so by updating in `hosts` folder. 
