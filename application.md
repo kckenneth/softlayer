@@ -587,7 +587,7 @@ Rejected Keys:
 ```
 
 # Week3 
-# Mosquitto
+# Mosquitto (MQTT)
 
 ```
 $ slcli vs create -d hou02 --os UBUNTU_LATEST_64 --cpu 2 --memory 2048 --hostname kenneth --domain someplace.net --billing=hourly
@@ -635,6 +635,22 @@ The output is from GPS GLONASS Satellite. PRN indicates parameter numbers, el fo
 # Week4
 # GPFS Setup
 
+### I. Keygen generation to setup ssh key pairs later on virtual servers
+
+In your local host terminal (laptop),
+```
+$ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa 
+```
+
+Add your public key to your softlayer account.  
+`--note` flag is for softlayer account.  
+`w251key` the identifier after that is for later use when we communicate with the virtual servers we will provision later on.
+```
+$ slcli sshkey add -f ~/.ssh/w251.pub --note 'added during HW2' w251key
+```   
+
+### II. Provision four vs
+
 A. Get three virtual servers provisioned, 2 vCPUs, 4G RAM, UBUNTU_16_64, two local disks 25G each, in San Jose. Make sure you attach a keypair. Pick intuitive names such as gpfs1, gpfs2, gpfs3. Note their internal ip addresses.
 
 You can first test run the virtual server by using the flag `--test`. It will show you how much it will charge for each parameters. If you need help with the flag, you can call `slcli vs create --help`. Since I'm creating two local disks, I used `--disk=25` twice because the flag allows multiple occurence. 
@@ -643,25 +659,10 @@ Test running
 ```
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --test  
 ```
-
-### I. Keygen generation to setup ssh key pairs later on virtual servers
-
-In your local host terminal (laptop),
-```
-$ ssh-keygen -f ~/.ssh/w251 -b 2048 -t rsa 
-```
-
-Add your public key to your softlayer account. 
-`--note` flag is for softlayer account.  
-`w251key` the identifier after that is for later use when we communicate with the virtual servers we will provision later on.
-```
-$ slcli sshkey add -f ~/.ssh/w251.pub --note 'added during HW2' w251key
-```   
-
-### II. Provision three vs
-Note the hostname for three vs
+I will provision 4 virtual servers. You can also see the flags in short form and long form. Note the hostname for three vs. Also make sure you'd use the identifer for `--key` flag. The identifier you created when you generated keygen on earlier step. 
 
 ```
+$ slcli vs create -d hou02 --os UBUNTU_LATEST_64 --cpu 1 --memory 1024 --hostname saltmaster --domain someplace.net --key w251key
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
 $ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25
