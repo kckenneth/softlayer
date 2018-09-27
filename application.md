@@ -727,7 +727,13 @@ In the node
 ```
 # vi /root/.bash_profile
 export PATH=$PATH:/usr/lpp/mmfs/bin
+```
+export path is for `mmcrcluster` call in later step. You can also use `PATH=/usr/lpp/mmfs/bin:$PATH`. Since bash_profile is readonly file, you need to source it so that it can be activated. 
+```
+$ source .bash_profile
+```
 
+```
 # vi /root/nodefile
 gpfs1:quorum:
 gpfs2::
@@ -738,7 +744,7 @@ gpfs3::
 10.91.105.3    gpfs2
 10.91.105.16   gpfs3
 ```
-export path is for `mmcrcluster` call in later step. 
+
 
 ### IV. Installing GPFS in each node
 
