@@ -688,9 +688,9 @@ I will provision 4 virtual servers. You can also see the flags in short form and
 
 ```
 $ slcli vs create -d hou02 --os UBUNTU_LATEST_64 --cpu 1 --memory 1024 --hostname saltmaster --domain someplace.net --key w251key
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key w251key
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25 --key w251key
-$ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_LATEST_64 --disk=25 --disk=25  --key w251key
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs1 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_16_64 --disk=25 --disk=25 --key w251key
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs2 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_16_64 --disk=25 --disk=25 --key w251key
+$ slcli vs create --datacenter=sjc01 --hostname=gpfs3 --domain=softlayer.com --billing=hourly --cpu=2 --memory=4096 --os=UBUNTU_16_64 --disk=25 --disk=25  --key w251key
 ```
 Checking all virtual servers provisioned
 ```
@@ -698,24 +698,32 @@ $ slcli vs list
 :..........:............:................:...............:............:........:
 :    id    :  hostname  :   primary_ip   :   backend_ip  : datacenter : action :
 :..........:............:................:...............:............:........:
-: 62312335 :   gpfs1    : 198.23.88.163  :  10.91.105.3  :   sjc01    :   -    :
-: 62312339 :   gpfs2    : 198.23.88.166  :  10.91.105.14 :   sjc01    :   -    :
-: 62312371 :   gpfs3    : 198.23.88.162  :  10.91.105.16 :   sjc01    :   -    :
+: 62322459 :   gpfs1    : 198.23.88.166  :  10.91.105.14 :   sjc01    :   -    :
+: 62322467 :   gpfs2    : 198.23.88.163  :  10.91.105.3  :   sjc01    :   -    :
+: 62322493 :   gpfs3    : 198.23.88.162  :  10.91.105.16 :   sjc01    :   -    :
 : 62311733 : saltmaster : 184.173.26.246 : 10.77.200.159 :   hou02    :   -    :
 :..........:............:................:...............:............:........:
 ```
-
-
 ### III. Setting up keygen in 3 nodes 
 Since we already provisioned 3 virtual servers or nodes with `--key w251` key, the w251.pub public key is automatically added to each node ~/.ssh/authorized_keys file during privisioning. We also like them to communicate each other without requiring any passwords. So we need to add the private key (i.e., the key in our local host, laptop) to each of the three ndoes. The saltmaster node I created just in case, I need to communicate those 3 nodes from other servers.  
 `-i` flag is to specify the private key directory. Since we're connecting to the server, we need password. Instead of typing the password, just providing the key will bypass the password step. We're also directing the private key to be copied into virtual server .ssh directory.
 
 ```
-$ scp -i ~/.ssh/w251 ~/.ssh/w251 root@198.23.88.163:/root/.ssh/
+$ scp -i ~/.ssh/w251 ~/.ssh/w251 root@198.23.88.166:/root/.ssh/
 ```
+If you come across a warning message, go to 
+```
+$ cd ~/.ssh
+$ vi known_hosts
+```
+delete ECDSA key  
 
-logging into each node separately, while in the node following three commands will be executed. There is no default .bash_profile and nodefile. So calling vi will automatically create those file. Every time when you call `vi`, type in the script after the respective commands. In nodefile, depending on the node you're in, you change the `:quorum:` position accordingly. 
+Logging into each node separately, while in the node following three commands will be executed. It's better to open three separate terminals. There is no default .bash_profile and nodefile. So calling vi will automatically create those file. Every time when you call `vi`, type in the script after the respective commands. In nodefile, depending on the node you're in, you change the `:quorum:` position accordingly. 
 
+```
+$ ssh -i ~/.ssh/w251 root@198.23.88.166
+```
+In the node
 ```
 # vi /root/.bash_profile
 export PATH=$PATH:/usr/lpp/mmfs/bin
@@ -726,16 +734,41 @@ gpfs2::
 gpfs3::
 
 # vi /etc/hosts
-10.91.105.3		gpfs1
-10.91.105.14	gpfs2
-10.91.106.16	gpfs3
+10.91.105.14   gpfs1
+10.91.105.3    gpfs2
+10.91.105.16   gpfs3
+```
+export path is for `mmcrcluster` call in later step. 
+
+### IV. Installing GPFS in each node
+
+Download GPFS tar
+```
+# apt-get update
+# apt-get install ksh binutils libaio1 g++ make m4
+# cd
+# curl -O http://1D7C9.http.dal05.cdn.softlayer.net/icp-artifacts/Spectrum_Scale_ADV_501_x86_64_LNX.tar
+# tar -xvf Spectrum_Scale_ADV_501_x86_64_LNX.tar
 ```
 
+Then install GPFS with:
 
+```
+# ./Spectrum_Scale_Advanced-5.0.1.0-x86_64-Linux-install --silent
+# cd /usr/lpp/mmfs/5.0.1.0/gpfs_debs
+# dpkg -i *.deb
+# /usr/lpp/mmfs/bin/mmbuildgpl
+```
+The first command is agreeing the license agreement. The `--silent` option to accept the license agreement automatically. If installing all .deb doesn't work, 
+```
+# dpkg -i gpfs.base*deb gpfs.gpl*deb gpfs.license*.deb gpfs.gskit*deb gpfs.msg*deb gpfs.ext*deb gpfs.compression*deb gpfs.adv*deb gpfs.crypto*deb
+# /usr/lpp/mmfs/bin/mmbuildgpl
+```
+### V. Creating Cluster in One Node (GPFS1)
 
-
-
-
+```
+# mmcrcluster -C kenneth -p gpfs1 -s gpfs2 -R /usr/bin/scp -r /usr/bin/ssh -N /root/nodefile
+```
 
 
 
