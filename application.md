@@ -698,13 +698,13 @@ $ slcli vs list
 :..........:............:................:...............:............:........:
 :    id    :  hostname  :   primary_ip   :   backend_ip  : datacenter : action :
 :..........:............:................:...............:............:........:
-: 62322459 :   gpfs1    : 198.23.88.166  :  10.91.105.14 :   sjc01    :   -    :
-: 62322467 :   gpfs2    : 198.23.88.163  :  10.91.105.3  :   sjc01    :   -    :
-: 62322493 :   gpfs3    : 198.23.88.162  :  10.91.105.16 :   sjc01    :   -    :
-: 62311733 : saltmaster : 184.173.26.246 : 10.77.200.159 :   hou02    :   -    :
+: 62391253 :   gpfs1    : 198.23.88.163  :  10.91.105.3  :   sjc01    :   -    :
+: 62391273 :   gpfs2    : 198.23.88.166  :  10.91.105.14 :   sjc01    :   -    :
+: 62391283 :   gpfs3    : 198.23.88.162  :  10.91.105.16 :   sjc01    :   -    :
+: 62391225 : saltmaster : 184.173.26.246 : 10.77.200.159 :   hou02    :   -    :
 :..........:............:................:...............:............:........:
 ```
-### III. Setting up keygen in 3 nodes 
+### III. Setting up keygen in 3 nodes [This step I found is optional, the keygen in the node is much more useful.]
 Since we already provisioned 3 virtual servers or nodes with `--key w251` key, the w251.pub public key is automatically added to each node ~/.ssh/authorized_keys file during privisioning. We also like them to communicate each other without requiring any passwords. So we need to add the private key (i.e., the key in our local host, laptop) to each of the three ndoes. The saltmaster node I created just in case, I need to communicate those 3 nodes from other servers.  
 `-i` flag is to specify the private key directory. Since we're connecting to the server, we need password. Instead of typing the password, just providing the key will bypass the password step. We're also directing the private key to be copied into virtual server .ssh directory.
 
@@ -743,6 +743,72 @@ gpfs3::
 10.91.105.14   gpfs1
 10.91.105.3    gpfs2
 10.91.105.16   gpfs3
+```
+
+#### Checking nodes communication 
+
+Now we're going to check all nodes communication without password. So the idea is create the ssh-keygen in one node, which will generate private and public key. Make sure you'd use id_rsa. Not other customized names which doesn't work as expected. 
+
+```
+# ssh-keygen -f ~/.ssh/id_rsa -b 2048 -t rsa 
+# cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+# chmod 600 ~/.ssh/authorized_keys
+```
+
+You now copy all files in the `.ssh` directory:  
+- authorized_keys  
+- id_rsa  
+- id_rsa.pub  
+to all nodes in the cluster. We have 3 nodes set up in our cluster. So we need to copy all files into the other 2 nodes. 
+
+```
+# scp ~/.ssh/* root@198.23.88.166:/root/.ssh/
+# scp ~/.ssh/* root@198.23.88.162:/root/.ssh/
+```
+You open 3 individual terminals. In each terminal, ssh into individual nodes and check if those scp works from gpfs1 node. After all done, try this from each node (each terminal). You'll be sshing from gpfs1 to gpfs1. It doesn't matter. We want to add the information into known_hosts. You'll do those in other two terminals as well. 
+```
+# ssh gpfs1
+yes
+exit
+# ssh gpfs2
+yes
+exit
+# ssh gpfs3
+yes 
+exit
+```
+After you're done, make sure they work. Now in GPFS1 node (terminal), 
+```
+# vi test.sh
+```
+Copy the following script
+```
+#!/bin/bash
+
+# Edit node list
+nodes="gpfs1 gpfs2 gpfs3"
+
+# Test ssh configuration
+for i in $nodes
+do for j in $nodes
+ do echo -n "Testing ${i} to ${j}: "
+ ssh  ${i} "ssh ${j} date"
+ done
+done
+```
+run the script. If all nodes communicate without password (In order for GPFS to work, each node must communicate passwordless), you'd see your script works. If nodes communication fails, you'd see some errors here. 
+```
+# ./test.sh
+root@gpfs1:~# ./test.sh
+Testing gpfs1 to gpfs1: Thu Sep 27 23:49:24 UTC 2018
+Testing gpfs1 to gpfs2: Thu Sep 27 23:49:24 UTC 2018
+Testing gpfs1 to gpfs3: Thu Sep 27 23:49:24 UTC 2018
+Testing gpfs2 to gpfs1: Thu Sep 27 23:49:25 UTC 2018
+Testing gpfs2 to gpfs2: Thu Sep 27 23:49:25 UTC 2018
+Testing gpfs2 to gpfs3: Thu Sep 27 23:49:26 UTC 2018
+Testing gpfs3 to gpfs1: Thu Sep 27 23:49:26 UTC 2018
+Testing gpfs3 to gpfs2: Thu Sep 27 23:49:27 UTC 2018
+Testing gpfs3 to gpfs3: Thu Sep 27 23:49:27 UTC 2018
 ```
 
 
