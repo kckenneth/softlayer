@@ -705,7 +705,7 @@ $ slcli vs list
 :..........:............:................:...............:............:........:
 ```
 ### III. Setting up keygen in 3 nodes 
-[This step I found is optional, the keygen in the node is much more useful. However if you generate with id_rsa, it might work. Since I already have id_rsa (private key) in my laptop, I don't want to mess up with the existing ones.]
+[This step I found is optional, the keygen in the node is much more useful. However if you generate with id_rsa, it might work. Since I already have id_rsa (private key) in my laptop, I don't want to mess up with the existing ones.]  
 Since we already provisioned 3 virtual servers or nodes with `--key w251` key, the w251.pub public key is automatically added to each node ~/.ssh/authorized_keys file during privisioning. We also like them to communicate each other without requiring any passwords. So we need to add the private key (i.e., the key in our local host, laptop) to each of the three ndoes. The saltmaster node I created just in case, I need to communicate those 3 nodes from other servers.  
 `-i` flag is to specify the private key directory. Since we're connecting to the server, we need password. Instead of typing the password, just providing the key will bypass the password step. We're also directing the private key to be copied into virtual server .ssh directory.
 
@@ -812,14 +812,12 @@ Testing gpfs3 to gpfs2: Thu Sep 27 23:49:27 UTC 2018
 Testing gpfs3 to gpfs3: Thu Sep 27 23:49:27 UTC 2018
 ```
 
-
 ### IV. Installing GPFS in each node
 
 Download GPFS tar
 ```
 # apt-get update
 # apt-get install ksh binutils libaio1 g++ make m4
-# cd
 # curl -O http://1D7C9.http.dal05.cdn.softlayer.net/icp-artifacts/Spectrum_Scale_ADV_501_x86_64_LNX.tar
 # tar -xvf Spectrum_Scale_ADV_501_x86_64_LNX.tar
 ```
@@ -842,18 +840,212 @@ The first command is agreeing the license agreement. The `--silent` option to ac
 ```
 # mmcrcluster -C kenneth -p gpfs1 -s gpfs2 -R /usr/bin/scp -r /usr/bin/ssh -N /root/nodefile
 ```
-
-
-
-# Miscellaneous Notes
-
-If you're connecting to VS, you use `$ ssh root@169.55.204.86`. You cannot use the hostname `kenneth` although you use `kenneth` as your hostname when you provision VS in the first place. It's because of the DNS system. If you want to use the hostname, you can do so by updating in `hosts` folder. 
+You will see this message
 ```
-$ vi /etc/hosts/
-169.55.204.86 kenneth
+mmcrcluster: Performing preliminary node verification ...
+mmcrcluster: Processing quorum and other critical nodes ...
+mmcrcluster: Processing the rest of the nodes ...
+mmcrcluster: Finalizing the cluster data structures ...
+mmcrcluster: Command successfully completed
+mmcrcluster: Warning: Not all nodes have proper GPFS license designations.
+    Use the mmchlicense command to designate licenses as needed.
+mmcrcluster: Propagating the cluster configuration data to all
+  affected nodes.  This is an asynchronous process.
 ```
 
-After you updated the hosts, you can ssh next time by using 
+To accept the license in all nodes
 ```
-$ ssh root@kenneth
+# mmchlicense server -N all
 ```
+
+To start GPFS 
+```
+# mmstartup -a
+Fri Sep 28 00:36:46 UTC 2018: mmstartup: Starting GPFS ...
+```
+
+To check the status of GPFS
+```
+# mmgetstate -a
+
+ Node number  Node name        GPFS state  
+-------------------------------------------
+       1      gpfs1            arbitrating
+       2      gpfs2            arbitrating
+       3      gpfs3            arbitrating
+```
+Wait a few seconds, and try again, you'd see all nodes are active in GPFS
+```
+ Node number  Node name        GPFS state  
+-------------------------------------------
+       1      gpfs1            active
+       2      gpfs2            active
+       3      gpfs3            active
+```
+NOTE  
+Although you launched GPFS from one node, you can check in other nodes after launch. GPFS launch and installation is different. You need to install GPFS in every node individually. However you can launch GPFS from one node. If there's an error, you can check at `/var/adm/ras/mmfs.log.latest`.
+
+### To lookup GPFS details
+```
+# mmlscluster
+
+GPFS cluster information
+========================
+  GPFS cluster name:         kenneth.gpfs1
+  GPFS cluster id:           10445230950671284009
+  GPFS UID domain:           kenneth.gpfs1
+  Remote shell command:      /usr/bin/ssh
+  Remote file copy command:  /usr/bin/scp
+  Repository type:           CCR
+
+ Node  Daemon node name  IP address    Admin node name  Designation
+--------------------------------------------------------------------
+   1   gpfs1             10.91.105.3   gpfs1            quorum
+   2   gpfs2             10.91.105.14  gpfs2            
+   3   gpfs3             10.91.105.16  gpfs3  
+```
+
+### Check the mounted disk
+
+```
+# fdisk -l | grep Disk | grep bytes
+
+Disk /dev/xvdc: 25 GiB, 26843545600 bytes, 52428800 sectors
+Disk /dev/xvda: 25 GiB, 26843701248 bytes, 52429104 sectors
+Disk /dev/xvdh: 64 MiB, 67125248 bytes, 131104 sectors
+Disk /dev/xvdb: 2 GiB, 2147483648 bytes, 4194304 sectors
+```
+### To check the mounted directory
+
+```
+# mount | grep ' \/ '
+
+/dev/xvda2 on / type ext4 (rw,relatime,data=ordered)
+```
+Note  
+This could mean (I'm still learning), the OS is installed in `xvda` partition 2. So we rather not touch on that disk. We will use the other disk. If you remember, we provisioned two local disks in the beginning. So the other disk would be `xvdc`. So we will use the other disk.  
+
+```
+# vi /root/diskfile.fpo
+```
+Copy the following lines
+```
+%pool:
+pool=system
+allowWriteAffinity=yes
+writeAffinityDepth=1
+
+%nsd:
+device=/dev/xvdc
+servers=gpfs1
+usage=dataAndMetadata
+pool=system
+failureGroup=1
+
+%nsd:
+device=/dev/xvdc
+servers=gpfs2
+usage=dataAndMetadata
+pool=system
+failureGroup=2
+
+%nsd:
+device=/dev/xvdc
+servers=gpfs3
+usage=dataAndMetadata
+pool=system
+failureGroup=3
+```
+
+Setup the disk in all nodes
+```
+mmcrnsd -F /root/diskfile.fpo
+```
+
+Check if it's already setup
+```
+mmcrnsd -m
+
+ Disk name    NSD volume ID      Device         Node name                Remarks       
+---------------------------------------------------------------------------------------
+ gpfs1nsd     0A5B69035BAD7D63   /dev/xvdc      gpfs1                    server node
+ gpfs2nsd     7F0001015BAD7D64   /dev/xvdc      gpfs2                    server node
+ gpfs3nsd     7F0001015BAD7D67   /dev/xvdc      gpfs3                    server node
+```
+
+### Create a file system 
+This is what I think happening. First we launched 3 virtual servers. We then installed GPFS in each of those nodes. We made sure they can communicate without passwords. Since we want to communicate with those nodes at ease. Also the nodes can also communicate with each other at ease. Basically you're combining all nodes so that you increase your capacity. Conceptually every node is like state in the US. But by combining all states (nodes), you have more capacity (federal), and more resources. Of course you'd need an elected leader, which is a quorum manager. Here GPFS is our quorum manager. 
+
+Now since we have established all disks from every node, we want them to communicate efficiently. Basically if you have an address on your disk, you don't want them to be the same as in other nodes. Otherwise, it would be a disaster. So you'll need to streamline all address across all the nodes you created. So when you create a file system, this will create `inode` system that will become a backbone of GPFS across all nodes in your cluster. 
+
+```
+mmcrfs gpfsfpo -F /root/diskfile.fpo -A yes -Q no -r 1 -R 1
+
+...
+Clearing Inode Allocation Map
+Clearing Block Allocation Map
+Formatting Allocation Map for storage pool system
+Completed creation of file system /dev/gpfsfpo.
+```
+
+Check the filesystem
+```
+mmlsfs all
+```
+
+Mount the filesystem in all nodes. Before we mount, you can check before and after filesystem. So first check how the filesystem looks like. 
+```
+# df -h
+
+Filesystem      Size  Used Avail Use% Mounted on
+udev            2.0G     0  2.0G   0% /dev
+tmpfs           395M  5.6M  389M   2% /run
+/dev/xvda2       24G  3.9G   21G  17% /
+tmpfs           2.0G     0  2.0G   0% /dev/shm
+tmpfs           5.0M     0  5.0M   0% /run/lock
+tmpfs           2.0G     0  2.0G   0% /sys/fs/cgroup
+/dev/xvda1      240M   36M  192M  16% /boot
+tmpfs           396M     0  396M   0% /run/user/0
+```
+
+Mount the filesystem in all nodes 
+```
+# mmmount all -a
+```
+Check the filesystem
+```
+# df -h 
+
+Filesystem      Size  Used Avail Use% Mounted on
+udev            2.0G     0  2.0G   0% /dev
+tmpfs           395M  5.6M  389M   2% /run
+/dev/xvda2       24G  3.9G   21G  17% /
+tmpfs           2.0G     0  2.0G   0% /dev/shm
+tmpfs           5.0M     0  5.0M   0% /run/lock
+tmpfs           2.0G     0  2.0G   0% /sys/fs/cgroup
+/dev/xvda1      240M   36M  192M  16% /boot
+tmpfs           396M     0  396M   0% /run/user/0
+gpfsfpo          75G  1.6G   74G   3% /gpfs/gpfsfpo
+```
+
+You'd see the `gpfsfpo 75G` after mounting the file system in our cluster. You can also check by 
+```
+# cd /gpfs/gpfsfpo
+# df -h .
+
+Filesystem      Size  Used Avail Use% Mounted on
+gpfsfpo          75G  1.6G   74G   3% /gpfs/gpfsfpo
+```
+
+Check you create a file and check across all nodes in the cluster
+```
+# touch aa
+# ls -l
+total 0
+# ssh gpfs2 'ls -l /gpfs/gpfsfpo'
+total 0
+# ssh gpfs3 'ls -l /gpfs/gpfsfpo'
+total 0
+```
+
+
