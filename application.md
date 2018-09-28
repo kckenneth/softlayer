@@ -978,6 +978,8 @@ This is what I think happening. First we launched 3 virtual servers. We then ins
 
 Now since we have established all disks from every node, we want them to communicate efficiently. Basically if you have an address on your disk, you don't want them to be the same as in other nodes. Otherwise, it would be a disaster. So you'll need to streamline all address across all the nodes you created. So when you create a file system, this will create `inode` system that will become a backbone of GPFS across all nodes in your cluster. 
 
+Replication 1 means the data won't be replicated. If 2, the data will be replicated twice. 
+
 ```
 mmcrfs gpfsfpo -F /root/diskfile.fpo -A yes -Q no -r 1 -R 1
 
@@ -1046,6 +1048,12 @@ total 0
 total 0
 # ssh gpfs3 'ls -l /gpfs/gpfsfpo'
 total 0
+```
+
+# Mumbler 
+
+```
+# curl -O http://storage.googleapis.com/books/ngrams/books/googlebooks-eng-all-2gram-20090715-0.csv.zip
 ```
 
 
