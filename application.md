@@ -861,7 +861,13 @@ To accept the license in all nodes
 To start GPFS 
 ```
 # mmstartup -a
+
 Fri Sep 28 00:36:46 UTC 2018: mmstartup: Starting GPFS ...
+```
+Note  
+If you ever need to shut down GPFS, do so by
+```
+# mmshutdown -a
 ```
 
 To check the status of GPFS
@@ -886,6 +892,7 @@ NOTE
 Although you launched GPFS from one node, you can check in other nodes after launch. GPFS launch and installation is different. You need to install GPFS in every node individually. However you can launch GPFS from one node. If there's an error, you can check at `/var/adm/ras/mmfs.log.latest`.
 
 ### To lookup GPFS details
+This will show you even if your GPFS are down. Make sure you'd check `mmgetstate -a`. 
 ```
 # mmlscluster
 
